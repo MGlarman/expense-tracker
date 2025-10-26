@@ -6,6 +6,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import authRoutes from "./routes/auth.js";
 import expenseRoutes from "./routes/expenses.js";
+import incomeRoutes from "./routes/income.js";
 
 dotenv.config();
 
@@ -25,6 +26,8 @@ mongoose
 app.use("/api/auth", authRoutes);
 
 app.use("/api/expenses", expenseRoutes);
+
+app.use("/api/income", incomeRoutes);
 
 // Test route
 app.get("/", (req, res) => res.send("Expense Tracker API running 🚀"));
