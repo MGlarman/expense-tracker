@@ -17,7 +17,7 @@ const incomeSchema = new mongoose.Schema({
         default: 0,
     },
     month: {
-        type: number, //0-11
+        type: Number, //0-11
     },
     year: {
         type: Number,
