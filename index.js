@@ -1,12 +1,12 @@
-// server/index.js
-
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
+
 import authRoutes from "./routes/auth.js";
 import expenseRoutes from "./routes/expenses.js";
 import incomeRoutes from "./routes/income.js";
+import adminRoutes from "./routes/admin.js"; // ✅ add this
 
 dotenv.config();
 
@@ -24,10 +24,9 @@ mongoose
 
 // Routes
 app.use("/api/auth", authRoutes);
-
 app.use("/api/expenses", expenseRoutes);
-
 app.use("/api/income", incomeRoutes);
+app.use("/api/admin", adminRoutes); // ✅ add this
 
 // Test route
 app.get("/", (req, res) => res.send("Expense Tracker API running 🚀"));
