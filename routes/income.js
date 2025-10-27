@@ -46,22 +46,14 @@ router.post("/", auth, async (req, res) => {
       return res.status(400).json({ error: "amount must be a number" });
     }
 
-    // Prevent duplicate entries for the same month/year
-    const existing = await Income.findOne({ userId: req.user.userId, month, year });
-    if (existing) {
-      return res.status(400).json({ error: "Income record for this month already exists." });
-    }
+    // Upsert: update existing month/year or create a new one
+    const income = await Income.findOneAndUpdate(
+      { userId: req.user.userId, month, year },
+      { amount, savingsGoal },
+      { new: true, upsert: true, setDefaultsOnInsert: true }
+    );
 
-    const newIncome = new Income({
-      userId: req.user.userId,
-      amount,
-      savingsGoal,
-      month,
-      year,
-    });
-
-    await newIncome.save();
-    res.status(201).json(newIncome);
+    res.status(200).json(income);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
