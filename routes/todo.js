@@ -1,13 +1,14 @@
+// routes/todo.js
 import express from "express";
 import Todo from "../models/Todo.js";
-import { authMiddleware } from "../middleware/auth.js";
+import { auth } from "../middleware/auth.js"; // ✅ use default export
 
 const router = express.Router();
 
 // GET all todos for the logged-in user
-router.get("/", authMiddleware, async (req, res) => {
+router.get("/", auth, async (req, res) => {
   try {
-    const todos = await Todo.find({ userId: req.user._id }).sort({ createdAt: -1 });
+    const todos = await Todo.find({ userId: req.user.userId }).sort({ createdAt: -1 });
     res.json(todos);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -15,12 +16,12 @@ router.get("/", authMiddleware, async (req, res) => {
 });
 
 // POST: Add a new todo
-router.post("/", authMiddleware, async (req, res) => {
+router.post("/", auth, async (req, res) => {
   try {
     const { title, dueDate, estimatedTime, category, priority } = req.body;
 
     const todo = new Todo({
-      userId: req.user._id,
+      userId: req.user.userId,
       title,
       dueDate: dueDate || null,
       estimatedTime: Number(estimatedTime) || 0,
@@ -36,7 +37,7 @@ router.post("/", authMiddleware, async (req, res) => {
 });
 
 // PUT: Update a todo
-router.put("/:id", authMiddleware, async (req, res) => {
+router.put("/:id", auth, async (req, res) => {
   try {
     const { title, completed, dueDate, estimatedTime, category, priority } = req.body;
 
@@ -49,7 +50,7 @@ router.put("/:id", authMiddleware, async (req, res) => {
     if (priority !== undefined) updatedFields.priority = priority;
 
     const todo = await Todo.findOneAndUpdate(
-      { _id: req.params.id, userId: req.user._id },
+      { _id: req.params.id, userId: req.user.userId },
       updatedFields,
       { new: true }
     );
@@ -62,9 +63,9 @@ router.put("/:id", authMiddleware, async (req, res) => {
 });
 
 // DELETE: Remove a todo
-router.delete("/:id", authMiddleware, async (req, res) => {
+router.delete("/:id", auth, async (req, res) => {
   try {
-    const todo = await Todo.findOneAndDelete({ _id: req.params.id, userId: req.user._id });
+    const todo = await Todo.findOneAndDelete({ _id: req.params.id, userId: req.user.userId });
     if (!todo) return res.status(404).json({ error: "Todo not found" });
     res.json({ message: "Todo deleted" });
   } catch (err) {
