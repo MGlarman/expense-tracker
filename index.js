@@ -26,7 +26,8 @@ mongoose
 app.use("/api/auth", authRoutes);
 app.use("/api/expenses", expenseRoutes);
 app.use("/api/income", incomeRoutes);
-app.use("/api/admin", adminRoutes); // ✅ add this
+app.use("/api/admin", adminRoutes);
+app.use("/api/todo", todoRoutes);
 
 // Test route
 app.get("/", (req, res) => res.send("Expense Tracker API running 🚀"));
