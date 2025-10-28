@@ -6,7 +6,8 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth.js";
 import expenseRoutes from "./routes/expenses.js";
 import incomeRoutes from "./routes/income.js";
-import adminRoutes from "./routes/admin.js"; // ✅ add this
+import adminRoutes from "./routes/admin.js";
+import todoRoutes from "./routes/todo.js";
 
 dotenv.config();
 
