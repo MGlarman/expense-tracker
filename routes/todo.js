@@ -27,6 +27,7 @@ router.post("/", auth, async (req, res) => {
       estimatedTime: Number(estimatedTime) || 0,
       category: category || "General",
       priority: priority || "medium",
+      subtasks: [], // ✅ initialize empty subtasks
     });
 
     await todo.save();
@@ -68,6 +69,68 @@ router.delete("/:id", auth, async (req, res) => {
     const todo = await Todo.findOneAndDelete({ _id: req.params.id, userId: req.user.userId });
     if (!todo) return res.status(404).json({ error: "Todo not found" });
     res.json({ message: "Todo deleted" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+//////////////////////////
+// ✅ Subtasks Routes
+//////////////////////////
+
+// POST: Add a subtask
+router.post("/:id/subtasks", auth, async (req, res) => {
+  try {
+    const { title, estimatedTime } = req.body;
+    if (!title) return res.status(400).json({ error: "Subtask title is required" });
+
+    const todo = await Todo.findOne({ _id: req.params.id, userId: req.user.userId });
+    if (!todo) return res.status(404).json({ error: "Todo not found" });
+
+    const subtask = { title, completed: false, estimatedTime: Number(estimatedTime) || 0 };
+    todo.subtasks.push(subtask);
+
+    await todo.save();
+    res.status(201).json(todo);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// PUT: Update a subtask
+router.put("/:id/subtasks/:subId", auth, async (req, res) => {
+  try {
+    const { title, completed, estimatedTime } = req.body;
+
+    const todo = await Todo.findOne({ _id: req.params.id, userId: req.user.userId });
+    if (!todo) return res.status(404).json({ error: "Todo not found" });
+
+    const subtask = todo.subtasks.id(req.params.subId);
+    if (!subtask) return res.status(404).json({ error: "Subtask not found" });
+
+    if (title !== undefined) subtask.title = title;
+    if (completed !== undefined) subtask.completed = completed;
+    if (estimatedTime !== undefined) subtask.estimatedTime = Number(estimatedTime);
+
+    await todo.save();
+    res.json(todo);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// DELETE: Remove a subtask
+router.delete("/:id/subtasks/:subId", auth, async (req, res) => {
+  try {
+    const todo = await Todo.findOne({ _id: req.params.id, userId: req.user.userId });
+    if (!todo) return res.status(404).json({ error: "Todo not found" });
+
+    const subtask = todo.subtasks.id(req.params.subId);
+    if (!subtask) return res.status(404).json({ error: "Subtask not found" });
+
+    subtask.remove();
+    await todo.save();
+    res.json(todo);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
